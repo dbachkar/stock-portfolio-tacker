@@ -1,0 +1,22 @@
+{
+  "AAPL": {
+    "shares": 10.0,
+    "buy_price": 150.0
+  },
+  "MSFT": {
+    "shares": 5.0,
+    "buy_price": 280.0
+  },
+  "GOOGL": {
+    "shares": 3.0,
+    "buy_price": 2800.0
+  },
+  "NVDA": {
+    "shares": 7.0,
+    "buy_price": 130.0
+  },
+  "TSLA": {
+    "shares": 4.0,
+    "buy_price": 200.0
+  }
+}

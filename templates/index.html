@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Portfolio Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        h1, h2 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f4f4f4; }
+        input { padding: 8px; margin: 4px; width: 130px; }
+        button { padding: 8px 16px; background: #4CAF50; color: white; border: none; cursor: pointer; margin-right: 8px; }
+        button:hover { background: #45a049; }
+        .total { font-weight: bold; font-size: 1.2em; margin: 10px 0; }
+        .stock-row { display: flex; gap: 10px; margin: 8px 0; align-items: center; }
+        .gain { color: green; }
+        .loss { color: red; }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 8px 0 20px 0;
+        }
+        .metric-box {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+        .metric-box .label { font-size: 0.8em; color: #666; margin-bottom: 4px; }
+        .metric-box .value { font-size: 1.1em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>📊 Stock Portfolio Tracker</h1>
+
+    <form method="POST">
+        <div id="stocks">
+            {% for i in range(num_stocks) %}
+            <div class="stock-row">
+                <input type="text" name="ticker" placeholder="Ticker (e.g. AAPL)"
+                       value="{{ tickers[i] if tickers else '' }}">
+                <input type="number" name="shares" placeholder="Shares" step="0.01"
+                       value="{{ shares_list[i] if shares_list else '' }}">
+                <input type="number" name="buy_price" placeholder="Buy Price ($)" step="0.01"
+                       value="{{ buy_prices[i] if buy_prices else '' }}">
+            </div>
+            {% endfor %}
+        </div>
+        <br>
+        <button type="submit" name="action" value="add_row">+ Add Stock</button>
+        <button type="submit" name="action" value="track">Track Portfolio</button>
+        <button type="submit" name="action" value="save">💾 Save Portfolio</button>
+    </form>
+
+    {% if portfolio %}
+        <h2>Portfolio Summary</h2>
+        <table>
+            <tr>
+                <th>Ticker</th>
+                <th>Shares</th>
+                <th>Buy Price</th>
+                <th>Current Price</th>
+                <th>Cost Basis</th>
+                <th>Current Value</th>
+                <th>Gain / Loss</th>
+                <th>1Y Return</th>
+            </tr>
+            {% for ticker, info in portfolio.items() %}
+            <tr>
+                <td>{{ ticker }}</td>
+                <td>{{ info.shares }}</td>
+                <td>${{ info.buy_price }}</td>
+                <td>${{ info.current_price }}</td>
+                <td>${{ info.cost_basis }}</td>
+                <td>${{ info.current_value }}</td>
+                <td class="{{ 'gain' if info.gain_loss >= 0 else 'loss' }}">
+                    ${{ info.gain_loss }} ({{ info.gain_loss_pct }}%)
+                </td>
+                <td>{{ info.cumulative_return }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <p class="total">Total Portfolio Value: ${{ total_value }}</p>
+        <p class="total {{ 'gain' if total_gain_loss >= 0 else 'loss' }}">
+            Total Gain / Loss: ${{ total_gain_loss }}
+        </p>
+
+        <h2>Per-Stock Metrics</h2>
+        {% for ticker, m in metrics.items() %}
+            <h3>{{ ticker }}</h3>
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <div class="label">Sharpe Ratio</div>
+                    <div class="value">{{ m.sharpe_ratio }}</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Daily Volatility</div>
+                    <div class="value">{{ m.daily_volatility }}%</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Annualized Volatility</div>
+                    <div class="value">{{ m.annualized_volatility }}%</div>
+                </div>
+                <div class="metric-box">
+                    <div class="label">Max Drawdown</div>
+                    <div class="value">{{ m.max_drawdown }}%</div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <h2>Cumulative Returns Chart</h2>
+        <img src="data:image/png;base64,{{ chart }}" width="100%">
+    {% endif %}
+</body>
+</html>
